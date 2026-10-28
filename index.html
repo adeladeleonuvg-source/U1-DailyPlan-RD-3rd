@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegio Montano - Interactive Digital Whiteboard (3rd Grade ESL Reading)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        montano: {
+                            blue: '#1269A8',
+                            yellow: '#F7D615',
+                            teal: '#54887D',
+                            lightblue: '#88B5C7',
+                            olive: '#A6B046',
+                            bg: '#F2F5E9'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F2F5E9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .tab-active {
+            background-color: #1269A8 !important;
+            color: #FFFFFF !important;
+            border-bottom: 4px solid #F7D615;
+            transform: translateY(-2px);
+        }
+        .lesson-btn-active {
+            background-color: #54887D !important;
+            color: #FFFFFF !important;
+            font-weight: bold;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(18, 105, 168, 0.15), 0 8px 10px -6px rgba(18, 105, 168, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-gray-800">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b-4 border-montano-yellow shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <!-- Brand & Logo -->
+            <div class="flex items-center space-x-3">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyEop0yf6lZ7Jk9MILZxF1rBj4Oqs5esyhIQ&s" 
+                     alt="Colegio Montano Logo" class="h-12 w-auto object-contain rounded"
+                     onerror="this.onerror=null; this.src='https://placehold.co/120x50/1269A8/ffffff?text=MONTANO';">
+                <div>
+                    <h1 class="text-xl font-bold text-montano-blue leading-tight">COLEGIO MONTANO</h1>
+                    <p class="text-xs text-montano-teal font-semibold">Interactive Digital Whiteboard • Formative Model</p>
+                </div>
+            </div>
+
+            <!-- Class Quick Info Header -->
+            <div class="hidden lg:flex items-center space-x-6 text-sm bg-montano-bg px-4 py-2 rounded-lg border border-montano-lightblue/30">
+                <div><span class="font-bold text-montano-blue">Course:</span> 3rd Grade ESL</div>
+                <div><span class="font-bold text-montano-blue">Subject:</span> Reading (Unit 1)</div>
+                <div><span class="font-bold text-montano-blue">Teacher:</span> Nicole De León</div>
+                <div><span class="font-bold text-montano-blue">Duration:</span> 50 mins</div>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleInfoModal()" class="bg-montano-teal hover:bg-opacity-90 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center transition">
+                    <i class="fa-solid fa-circle-info mr-2"></i> Class Info
+                </button>
+                <button onclick="toggleFullscreen()" class="bg-montano-blue hover:bg-blue-800 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center transition shadow">
+                    <i class="fa-solid fa-expand mr-2" id="fullscreenIcon"></i> 
+                    <span id="fullscreenText">Full Screen</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+        <!-- Lesson Selector Ribbon -->
+        <section class="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
+                <h2 class="text-base font-bold text-montano-blue uppercase tracking-wide flex items-center">
+                    <i class="fa-solid fa-calendar-week mr-2 text-montano-yellow bg-montano-blue p-1.5 rounded-md text-xs"></i>
+                    Unit 1 Weekly Lessons Schedule (7 Weeks)
+                </h2>
+                <span class="text-xs font-semibold px-2.5 py-1 bg-montano-olive/20 text-montano-olive rounded-full border border-montano-olive/30 self-start md:self-auto">
+                    Jan 11 - Feb 26 (1 Session / Week)
+                </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2" id="lessonButtonsContainer">
+                <!-- Javascript will populate lesson selector buttons -->
+            </div>
+        </section>
+
+        <!-- Current Lesson Banner & Institutional Standard Card -->
+        <section class="bg-white rounded-xl p-5 shadow-md border-l-8 border-montano-blue relative overflow-hidden">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="lessonWeekBadge" class="bg-montano-yellow text-montano-blue font-extrabold text-xs px-2.5 py-0.5 rounded-md uppercase">Week 1</span>
+                        <span id="lessonDate" class="text-xs font-medium text-gray-500">Jan 11 - Jan 15</span>
+                        <span id="lessonBookRef" class="bg-montano-lightblue/30 text-montano-blue text-xs font-bold px-2 py-0.5 rounded">SB Pages 20-22</span>
+                    </div>
+                    <h2 id="lessonTitle" class="text-2xl font-extrabold text-montano-blue">Caring for Baby Elephants</h2>
+                </div>
+
+                <!-- Montano Habits Tag -->
+                <div class="bg-montano-bg p-3 rounded-lg border border-montano-olive/40 flex items-center gap-3">
+                    <div class="bg-montano-olive text-white p-2.5 rounded-full">
+                        <i class="fa-solid fa-seedling text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold uppercase">Montano Leader Habit</p>
+                        <p id="montanoHabit" class="text-sm font-bold text-montano-blue">Habit 1: Be Proactive & Habit 4: Think Win-Win</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CNB & Pedagogical Standard Accordion -->
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <button onclick="togglePedagogicalDetails()" class="text-xs font-bold text-montano-teal hover:text-montano-blue flex items-center gap-1 focus:outline-none">
+                    <i id="pedagogyChevron" class="fa-solid fa-chevron-right text-xs transition-transform duration-200"></i>
+                    <span>Show CNB Curriculum Standards, Competencies & Evaluation Strategy</span>
+                </button>
+                <div id="pedagogicalDetails" class="hidden mt-3 text-xs bg-montano-bg/60 p-4 rounded-lg space-y-2 border border-gray-200">
+                    <p><strong>CNB Competency (Guatemala ESL Standards):</strong> Reads aloud and silently with grade-appropriate speed, accuracy, and comprehension to extract factual details and main ideas from varied texts.</p>
+                    <p><strong>Learning Outcome:</strong> Identifies explicit details, sequence of events, and vocabulary contextually from the reading text.</p>
+                    <p><strong>Key Skills:</strong> Critical thinking, active communication, team collaboration, empathy, decision making.</p>
+                    <p><strong>Evaluation Stages:</strong> Diagnostic (Introductory brainstorm), Formative (Individual guide checks & group active monitoring), Summative (Plenary presentation & rubric evaluation).</p>
+                    <p><strong>Resources Needed:</strong> Student Book / Workbook, notebooks, digital projector, chart paper/markers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 DIDACTIC MOMENTS TABS -->
+        <section class="bg-white rounded-xl shadow-md overflow-hidden flex-grow flex flex-col border border-gray-200">
+            <!-- Navigation Tabs Header -->
+            <div class="grid grid-cols-2 md:grid-cols-4 bg-gray-100 border-b border-gray-200 text-sm font-bold">
+                <button onclick="switchTab(1)" id="tabBtn1" class="py-3 px-4 text-gray-600 hover:bg-gray-200 transition flex items-center justify-center gap-2 tab-active">
+                    <span>I) Warm-Up & Intro</span>
+                    <span class="text-xs font-normal bg-white/20 px-1.5 py-0.5 rounded">~5 min</span>
+                </button>
+                <button onclick="switchTab(2)" id="tabBtn2" class="py-3 px-4 text-gray-600 hover:bg-gray-200 transition flex items-center justify-center gap-2">
+                    <span>II) Individual Work</span>
+                    <span class="text-xs font-normal bg-white/20 px-1.5 py-0.5 rounded">20 min</span>
+                </button>
+                <button onclick="switchTab(3)" id="tabBtn3" class="py-3 px-4 text-gray-600 hover:bg-gray-200 transition flex items-center justify-center gap-2">
+                    <span>III) Teamwork</span>
+                    <span class="text-xs font-normal bg-white/20 px-1.5 py-0.5 rounded">30 min</span>
+                </button>
+                <button onclick="switchTab(4)" id="tabBtn4" class="py-3 px-4 text-gray-600 hover:bg-gray-200 transition flex items-center justify-center gap-2">
+                    <span>IV) Plenary & Game</span>
+                    <span class="text-xs font-normal bg-white/20 px-1.5 py-0.5 rounded">15 min</span>
+                </button>
+            </div>
+
+            <!-- TAB CONTENT CONTAINER -->
+            <div class="p-5 md:p-6 flex-grow bg-white">
+
+                <!-- TAB 1: INTRODUCCION MOTIVANTE -->
+                <div id="tabContent1" class="space-y-5">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-montano-yellow text-montano-blue p-2.5 rounded-lg font-black text-lg">I</span>
+                            <div>
+                                <h3 class="font-bold text-lg text-montano-blue">Warm-Up & Brain Activation</h3>
+                                <p class="text-xs text-gray-500">Connecting prior knowledge & stimulating curiosity</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-montano-teal bg-montano-bg px-3 py-1.5 rounded-full border border-montano-teal/20">
+                            Time: 5 Minutes
+                        </span>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 border-l-4 border-montano-blue p-4 rounded-r-lg">
+                            <h4 class="font-bold text-montano-blue text-sm mb-2 flex items-center">
+                                <i class="fa-solid fa-lightbulb text-montano-yellow mr-2"></i> Warm-Up Activity / Brain Gym
+                            </h4>
+                            <p id="warmupActivity" class="text-sm text-gray-700 leading-relaxed">
+                                Quick Brainstorming: Show an image of a baby elephant. Ask students: "What do baby animals need to survive when they don't have parents?" Write 3 key ideas on the board.
+                            </p>
+                        </div>
+
+                        <div class="bg-yellow-50 border-l-4 border-montano-yellow p-4 rounded-r-lg">
+                            <h4 class="font-bold text-yellow-800 text-sm mb-2 flex items-center">
+                                <i class="fa-solid fa-circle-question mr-2"></i> Key Guiding Question
+                            </h4>
+                            <p id="guidingQuestion" class="text-sm font-semibold text-gray-800 italic">
+                                "Who helps animals when they are lost in the wild, and how can humans care for them?"
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-montano-bg p-4 rounded-lg border border-montano-lightblue/40">
+                        <h4 class="font-bold text-montano-blue text-sm mb-1">Montano Leader Habit in Action:</h4>
+                        <p id="habitInstruction" class="text-sm text-gray-700">
+                            <strong>Seek First to Understand, Then to Be Understood:</strong> Listen respectfully to your classmates' answers during the opening discussion without interrupting.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TAB 2: TRABAJO INDIVIDUAL -->
+                <div id="tabContent2" class="hidden space-y-5">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-montano-blue text-white p-2.5 rounded-lg font-black text-lg">II</span>
+                            <div>
+                                <h3 class="font-bold text-lg text-montano-blue">Individual Work & Reading Comprehension</h3>
+                                <p class="text-xs text-gray-500">Autonomous reading, task execution, and self-evaluation</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-montano-teal bg-montano-bg px-3 py-1.5 rounded-full border border-montano-teal/20">
+                            Time: 20 Minutes
+                        </span>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <h4 class="font-bold text-montano-blue text-sm mb-2">Instructions for Students:</h4>
+                        <p id="indivInstructions" class="text-sm text-gray-700 mb-3">
+                            Read the text carefully in your book. Complete the True/False exercise and put the story events in order.
+                        </p>
+                        <div id="bookReferenceBox" class="inline-block bg-montano-yellow/30 text-montano-blue text-xs font-bold px-3 py-1.5 rounded-lg border border-montano-yellow">
+                            Book Reference: Student Book Pages 20-21
+                        </div>
+                    </div>
+
+                    <!-- Toggleable Answer Key / Hints Section for Teachers -->
+                    <div class="border border-montano-lightblue rounded-xl overflow-hidden bg-white">
+                        <button onclick="toggleAnswerKey()" class="w-full bg-montano-lightblue/20 hover:bg-montano-lightblue/30 p-3.5 text-left font-bold text-montano-blue flex justify-between items-center transition">
+                            <span class="flex items-center text-sm">
+                                <i class="fa-solid fa-key text-montano-blue mr-2"></i> Teacher Answer Key & Guidance (Click to Expand / Hide)
+                            </span>
+                            <i id="answerChevron" class="fa-solid fa-chevron-down text-montano-blue text-xs"></i>
+                        </button>
+                        <div id="answerKeyContent" class="hidden p-4 bg-blue-50/50 space-y-3 text-sm text-gray-700 border-t border-montano-lightblue/30">
+                            <!-- Answer Content Loaded via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: TRABAJO COOPERATIVO -->
+                <div id="tabContent3" class="hidden space-y-5">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-montano-teal text-white p-2.5 rounded-lg font-black text-lg">III</span>
+                            <div>
+                                <h3 class="font-bold text-lg text-montano-blue">Cooperative Teamwork</h3>
+                                <p class="text-xs text-gray-500">Structured group task with assigned roles & concrete output</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-montano-teal bg-montano-bg px-3 py-1.5 rounded-full border border-montano-teal/20">
+                            Time: 30 Minutes
+                        </span>
+                    </div>
+
+                    <!-- Group Roles Info Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                            <p class="font-bold text-montano-blue"><i class="fa-solid fa-crown mr-1"></i> Leader</p>
+                            <p class="text-gray-600">Keeps team on task & manages time</p>
+                        </div>
+                        <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+                            <p class="font-bold text-yellow-800"><i class="fa-solid fa-pen-nib mr-1"></i> Writer</p>
+                            <p class="text-gray-600">Writes group summary / poster</p>
+                        </div>
+                        <div class="p-3 bg-green-50 border border-green-200 rounded-lg text-center">
+                            <p class="font-bold text-montano-olive"><i class="fa-solid fa-bullhorn mr-1"></i> Speaker</p>
+                            <p class="text-gray-600">Presents solution during plenary</p>
+                        </div>
+                        <div class="p-3 bg-teal-50 border border-teal-200 rounded-lg text-center">
+                            <p class="font-bold text-montano-teal"><i class="fa-solid fa-magnifying-glass mr-1"></i> Researcher</p>
+                            <p class="text-gray-600">Checks book facts & details</p>
+                        </div>
+                    </div>
+
+                    <!-- Team Challenge Box -->
+                    <div class="bg-montano-bg p-5 rounded-xl border-2 border-montano-teal/40">
+                        <h4 class="font-extrabold text-montano-blue text-base mb-2 flex items-center">
+                            <i class="fa-solid fa-people-group mr-2 text-montano-teal"></i> Group Collaborative Challenge
+                        </h4>
+                        <p id="coopTask" class="text-sm text-gray-800 leading-relaxed font-medium">
+                            In pairs or trios, create a "Care Plan Poster" for a baby elephant. Detail 3 main needs mentioned in the text (e.g., milk, new family/trust, safety) and explain why each is important using full sentences.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-handshake text-montano-yellow text-xl"></i>
+                            <span class="text-xs font-bold text-gray-700">Montano Habit Strategy: "Synergize (Together is Better)"</span>
+                        </div>
+                        <span class="text-xs bg-montano-blue/10 text-montano-blue px-2.5 py-1 rounded font-bold">Product: Care Poster / Graphic Organizer</span>
+                    </div>
+                </div>
+
+                <!-- TAB 4: PLENARIA Y JUEGO INTERACTIVO -->
+                <div id="tabContent4" class="hidden space-y-6">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-montano-olive text-white p-2.5 rounded-lg font-black text-lg">IV</span>
+                            <div>
+                                <h3 class="font-bold text-lg text-montano-blue">Plenary Presentation & Interactive Review</h3>
+                                <p class="text-xs text-gray-500">Team sharing, targeted questions, and vocabulary game</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-montano-teal bg-montano-bg px-3 py-1.5 rounded-full border border-montano-teal/20">
+                            Time: 15 Minutes
+                        </span>
+                    </div>
+
+                    <!-- Interactive Vocabulary Mini Game / Trivia -->
+                    <div class="bg-gradient-to-r from-montano-blue to-montano-teal text-white p-5 rounded-xl shadow-lg">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-extrabold text-lg text-montano-yellow flex items-center">
+                                <i class="fa-solid fa-gamepad mr-2"></i> Interactive Reading Challenge Game
+                            </h4>
+                            <span class="text-xs bg-white/20 px-3 py-1 rounded-full font-bold">Lesson Quiz</span>
+                        </div>
+                        <p class="text-xs text-blue-100 mb-4">Click an option to test student comprehension in real-time during plenary!</p>
+
+                        <div id="gameContainer" class="bg-white text-gray-800 p-4 rounded-lg">
+                            <p id="gameQuestion" class="font-bold text-sm text-montano-blue mb-3">
+                                Question loading...
+                            </p>
+                            <div id="gameOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                <!-- Options JS populated -->
+                            </div>
+                            <div id="gameFeedback" class="mt-3 text-xs font-bold min-h-[20px]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Evaluation Rubric / CheckList -->
+                    <div class="bg-white p-4 rounded-xl border border-gray-300">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-montano-blue text-sm uppercase tracking-wide flex items-center">
+                                <i class="fa-solid fa-clipboard-check mr-2 text-montano-teal"></i> Plenary Evaluation Checklist (Rubric)
+                            </h4>
+                            <span class="text-xs text-gray-500">Live Assessment</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-montano-bg text-montano-blue font-bold border-b">
+                                        <th class="p-2.5">Evaluation Criteria</th>
+                                        <th class="p-2.5 text-center">Needs Improvement (1 pt)</th>
+                                        <th class="p-2.5 text-center">Good (2 pts)</th>
+                                        <th class="p-2.5 text-center">Excellent (3 pts)</th>
+                                        <th class="p-2.5 text-center">Check</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200" id="rubricTableBody">
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">1. Subject Mastery & Clear Explanation</td>
+                                        <td class="p-2.5 text-center text-gray-500">Unclear facts</td>
+                                        <td class="p-2.5 text-center text-gray-500">Explains main ideas</td>
+                                        <td class="p-2.5 text-center text-gray-500">Fluent & accurate details</td>
+                                        <td class="p-2.5 text-center"><input type="checkbox" class="w-4 h-4 text-montano-blue rounded"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">2. Logic & Event Sequence</td>
+                                        <td class="p-2.5 text-center text-gray-500">Confused sequence</td>
+                                        <td class="p-2.5 text-center text-gray-500">Mostly logical</td>
+                                        <td class="p-2.5 text-center text-gray-500">Perfect logical order</td>
+                                        <td class="p-2.5 text-center"><input type="checkbox" class="w-4 h-4 text-montano-blue rounded"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">3. Team Collaboration & Equal Voice</td>
+                                        <td class="p-2.5 text-center text-gray-500">1 person speaks</td>
+                                        <td class="p-2.5 text-center text-gray-500">2 people speak</td>
+                                        <td class="p-2.5 text-center text-gray-500">All members participate</td>
+                                        <td class="p-2.5 text-center"><input type="checkbox" class="w-4 h-4 text-montano-blue rounded"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold">4. Q&A Response Readiness</td>
+                                        <td class="p-2.5 text-center text-gray-500">Unable to answer</td>
+                                        <td class="p-2.5 text-center text-gray-500">Answers with help</td>
+                                        <td class="p-2.5 text-center text-gray-500">Confidently answers</td>
+                                        <td class="p-2.5 text-center"><input type="checkbox" class="w-4 h-4 text-montano-blue rounded"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Information -->
+    <footer class="bg-montano-blue text-white py-4 mt-auto border-t-4 border-montano-yellow">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-xs gap-2">
+            <p>© 2026 Colegio Montano - Academic Department. Designed for Classroom Digital Projection.</p>
+            <p class="text-montano-lightblue font-semibold">Aligning Leaders through CNB Guatemala & 7 Habits Paradigm</p>
+        </div>
+    </footer>
+
+    <!-- Header Information Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl relative border-2 border-montano-blue">
+            <button onclick="toggleInfoModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="bg-montano-blue text-white p-3 rounded-lg">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-montano-blue">Lesson Plan Header Details</h3>
+                    <p class="text-xs text-gray-500">Institutional Information</p>
+                </div>
+            </div>
+
+            <div class="space-y-2 text-sm text-gray-700 border-t pt-3">
+                <p><strong>Course / Subject:</strong> 3rd Grade ESL - Reading</p>
+                <p><strong>Academic Unit:</strong> Unit 1 (Term 1)</p>
+                <p><strong>Teacher:</strong> Nicole De León</p>
+                <p><strong>Schedule:</strong> Jan 11 - Feb 26 (1 Class per week, 7 weeks)</p>
+                <p><strong>Class Duration:</strong> 50 Minutes</p>
+                <p><strong>Format:</strong> Interactive Digital Whiteboard</p>
+            </div>
+
+            <div class="mt-5 text-right">
+                <button onclick="toggleInfoModal()" class="bg-montano-blue text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-800">
+                    Close Window
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DATA & INTERACTION LOGIC -->
+    <script>
+        // DATA STRUCTURE FOR THE 7 WEEKS (UNIT 1 SCHEDULE)
+        const unitLessons = [
+            {
+                week: 1,
+                date: "Jan 11 - Jan 15",
+                title: "Caring for Baby Elephants",
+                bookRef: "SB Pages 20, 21, 22",
+                habit: "Habit 1: Be Proactive & Habit 4: Think Win-Win",
+                warmup: "Brainstorming: Show an image of a baby elephant. Ask students: 'What do baby animals need to survive when they lose their mothers?' Write key words on board.",
+                guidingQ: "'Who helps orphaned animals in the wild, and how can people care for them?'",
+                habitInst: "Listen actively to classmates during discussion without interrupting.",
+                indivTask: "Read 'Caring for Baby Elephants' on SB pages 20-21. Complete the True/False exercise (Ex 2) and put the story events in logical order (Ex 3).",
+                answerKey: "<strong>Exercise 2 (T/F):</strong> 1. F (Kenya/Africa, not Asia) | 2. T | 3. T | 4. T | 5. F (They go back to the wild).<br><strong>Exercise 3 (Sequence):</strong> 1st: Mother dies -> 2nd: People at Trust find baby -> 3rd: Give baby milk -> 4th: Elephant grows/plays -> 5th: Elephant goes back to the wild.",
+                coopTask: "In trios, design a 'Baby Elephant Care Guide' poster listing 3 crucial things caretakers must provide (e.g., milk, protection, friendship) with simple sentences.",
+                gameQ: "Where does the David Sheldrick Wildlife Trust help baby elephants?",
+                gameOptions: ["In Kenya, Africa", "In Asia", "In Australia", "In Guatemala"],
+                gameCorrect: 0
+            },
+            {
+                week: 2,
+                date: "Jan 18 - Jan 22",
+                title: "The Daily Lives of Animals",
+                bookRef: "WB Pages 12, 13, 14",
+                habit: "Habit 3: Put First Things First (Routine)",
+                warmup: "Mime game: Teacher mimes daily routines (sleeping, eating, hunting). Students guess if humans or animals do this at day or night.",
+                guidingQ: "'How do animal daily schedules differ from human schedules?'",
+                habitInst: "Organize your workbook and workspace before starting individual work.",
+                indivTask: "Read WB Page 12 about koalas, nightjars, and white sharks. Fill in the animal daily routine classification chart on WB Page 13.",
+                answerKey: "<strong>Exercise 2 (T/F):</strong> 1. T | 2. F (on the ground) | 3. F (never) | 4. T | 5. T | 6. F.<br><strong>Chart:</strong> Koala (Sleeps 15+ hrs / Eats eucalyptus / Pouch) | Nightjar (Sleeps on ground / Eats insects / Lays eggs on ground) | White Shark (Never stops swimming / Eats fish / Never cares for babies).",
+                coopTask: "In pairs, complete a Venn Diagram comparing a Koala's daily routine with a 3rd Grader's daily routine.",
+                gameQ: "Which animal sleeps more than 15 hours a day and eats eucalyptus leaves?",
+                gameOptions: ["Great White Shark", "Red-necked Nightjar", "Koala Bear", "Baby Elephant"],
+                gameCorrect: 2
+            },
+            {
+                week: 3,
+                date: "Jan 25 - Jan 29",
+                title: "Eye in the Sky",
+                bookRef: "SB Pages 36, 37, 38",
+                habit: "Habit 2: Begin with the End in Mind (Maps/Overview)",
+                warmup: "Satellite View Puzzle: Project a zoomed-in satellite photo of Colegio Montano or Guatemala City. Ask students to guess what place it is.",
+                guidingQ: "'How do satellites in space help us understand our towns and planet?'",
+                habitInst: "Visualize your neighborhood before reading map symbols.",
+                indivTask: "Read SB page 36 ('GeoEye 1 Satellite'). Analyze the satellite map of Pohang on page 37 and order places from smallest to biggest (house -> town -> country -> continent -> planet).",
+                answerKey: "<strong>Map Ex 2 (T/F):</strong> 1. F | 2. T | 3. F | 4. T.<br><strong>Order Ex 3:</strong> house -> street -> town -> country -> continent -> planet.",
+                coopTask: "In groups of 3, create a simple 'Satellite Map Legend' for a school playground including gym, field, and classrooms.",
+                gameQ: "What satellite machine circles Earth to take photos of our streets and weather?",
+                gameOptions: ["GeoEye 1", "Hot Air Balloon", "Submarine", "Drone 5"],
+                gameCorrect: 0
+            },
+            {
+                week: 4,
+                date: "Feb 01 - Feb 05",
+                title: "Villa las Estrellas: A Town in Antarctica",
+                bookRef: "WB Pages 24, 25, 26",
+                habit: "Habit 6: Synergize (Adapting together)",
+                warmup: "Cold vs Hot Brainstorm: Show snow photos. Ask: 'Would you like to live where it is dark 20 hours a day?' Quick show of hands.",
+                guidingQ: "'What makes living in Antarctica different from living in Guatemala?'",
+                habitInst: "Work in harmony to compare different global cultures and climates.",
+                indivTask: "Read WB Page 24. Match the questions with answers in Ex 3 and complete the comparison chart (Antarctica vs Where You Live).",
+                answerKey: "<strong>Ex 3 Matching:</strong> 1-b (In Antarctica), 2-d (Very cold, snowy, windy), 3-a (Sun always shines in summer), 4-c (Yes, they can).<br><strong>Ex 4 Chart:</strong> Weather: cold/snowy vs warm/temperate. Sun: 4-5 hrs winter vs ~12 hrs.",
+                coopTask: "Team Survey & Graph: Conduct a group survey asking 'Would you prefer to live in Villa las Estrellas or Guatemala?' Record tally marks.",
+                gameQ: "How many hours a day does the sun shine in Antarctica during winter?",
+                gameOptions: ["24 hours", "12 hours", "Only 4 or 5 hours", "It never stops"],
+                gameCorrect: 2
+            },
+            {
+                week: 5,
+                date: "Feb 08 - Feb 12",
+                title: "Hot Air Balloons",
+                bookRef: "SB Pages 52, 53, 54",
+                habit: "Habit 1: Be Proactive & Habit 5: Seek First to Understand",
+                warmup: "Science Warm-up: Ask: 'Does hot air go UP or DOWN?' Teacher demonstrates with a feather or paper strip over warm airflow.",
+                guidingQ: "'How do hot air balloons fly and how do pilots control them?'",
+                habitInst: "Seek to understand the scientific rules of flight before answering questions.",
+                indivTask: "Read SB page 52. Answer True/False in Ex 2 and arrange the flight process steps in sequence on page 53.",
+                answerKey: "<strong>Ex 2 (T/F):</strong> 1. T | 2. F (goes UP) | 3. F | 4. T | 5. T.<br><strong>Sequence Ex 3:</strong> 1. Light fire to heat air -> 2. Balloon goes up -> 3. Wind blows balloon -> 4. Pilot talks to chase team -> 5. Pilot lands safely.",
+                coopTask: "Pair Activity: Draw a labeled diagram showing the 3 main parts of a hot air balloon (Envelope/Balloon, Fire/Burner, Basket).",
+                gameQ: "Who follows the hot air balloon in a truck to help the pilot land safely?",
+                gameOptions: ["The Police", "The Chase Team", "The Firefighters", "The Coast Guard"],
+                gameCorrect: 1
+            },
+            {
+                week: 6,
+                date: "Feb 15 - Feb 19",
+                title: "How Kids Go to School Around the World!",
+                bookRef: "WB Pages 36, 37, 38",
+                habit: "Habit 4: Think Win-Win & Habit 7: Sharpen the Saw",
+                warmup: "Transportation Tally: How did you come to school today? (Car, bus, walking). Show photos of zipline & boat transport.",
+                guidingQ: "'What obstacles do children around the world overcome to receive an education?'",
+                habitInst: "Appreciate how children globally stay proactive to attend school.",
+                indivTask: "Read WB Page 36. Fill in sentences in Ex 2 (zip line, school boat, ferry) and complete the diagram on page 37.",
+                answerKey: "<strong>Ex 2 Fill-ins:</strong> 1. zip line | 2. ferry | 3. school boat.<br><strong>Diagram Ex 3:</strong> India = school boat | Colombia = zip line | Scotland = bike, ferry, bus.",
+                coopTask: "Group Matrix: Compare transport safety, speed, and fun factor between Colombia's zipline and Scotland's ferry.",
+                gameQ: "How do some children living in the high mountains of Colombia go to school?",
+                gameOptions: ["By Yellow Submarine", "By Zip Line", "By Helicopter", "By Skateboard"],
+                gameCorrect: 1
+            },
+            {
+                week: 7,
+                date: "Feb 22 - Feb 26",
+                title: "Extended Reading: The Lion and the Mouse",
+                bookRef: "SB Pages 58, 59",
+                habit: "Habit 4: Think Win-Win & Habit 6: Synergize",
+                warmup: "Fable Riddle: 'I am huge and roar loudly. I am tiny and gnaw things. Can we be friends?'",
+                guidingQ: "'How can even small acts of kindness create Win-Win situations?'",
+                habitInst: "Remember that everyone has value, regardless of size or background.",
+                indivTask: "Read fable on SB page 58. Put story sentences in order on page 59 (Ex 2) and fill in animal adjective table (Ex 3).",
+                answerKey: "<strong>Ex 2 Sequence:</strong> 1. Lion catches Mouse -> 2. Lion laughs and drops Mouse -> 3. Mouse sees Lion in net -> 4. Mouse chews the net -> 5. Lion thanks Mouse.<br><strong>Ex 3 Words:</strong> Mouse (small, clever, scared) | Lion (big, strong, angry).",
+                coopTask: "Role Play / Puppet Show: In pairs, act out the conversation between the trapped Lion and the helpful Mouse using paper puppets.",
+                gameQ: "What moral lesson does the fable 'The Lion and the Mouse' teach us?",
+                gameOptions: ["Lions shouldn't sleep", "Mice are scary", "Even a little friend can help a big friend", "Nets are strong"],
+                gameCorrect: 2
+            }
+        ];
+
+        let currentLessonIndex = 0;
+        let activeTab = 1;
+
+        // INITIALIZE APP ON LOAD
+        window.onload = function() {
+            renderLessonButtons();
+            loadLesson(0);
+        };
+
+        // RENDER LESSON SELECTOR BUTTONS
+        function renderLessonButtons() {
+            const container = document.getElementById('lessonButtonsContainer');
+            container.innerHTML = '';
+
+            unitLessons.forEach((lesson, index) => {
+                const btn = document.createElement('button');
+                btn.className = `p-2.5 rounded-lg border text-left transition flex flex-col justify-between ${index === 0 ? 'lesson-btn-active' : 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-700'}`;
+                btn.id = `lessonBtn_${index}`;
+                btn.onclick = () => loadLesson(index);
+
+                btn.innerHTML = `
+                    <span class="text-[10px] font-extrabold uppercase tracking-wide opacity-80">Wk ${lesson.week} (${lesson.date.split(' - ')[0]})</span>
+                    <span class="text-xs font-bold truncate mt-1">${lesson.title}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        // LOAD SELECTED LESSON DATA
+        function loadLesson(index) {
+            currentLessonIndex = index;
+            const data = unitLessons[index];
+
+            // Update Active Button Styling
+            unitLessons.forEach((_, i) => {
+                const btn = document.getElementById(`lessonBtn_${i}`);
+                if (i === index) {
+                    btn.className = "p-2.5 rounded-lg border text-left transition flex flex-col justify-between lesson-btn-active";
+                } else {
+                    btn.className = "p-2.5 rounded-lg border text-left transition flex flex-col justify-between bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-700";
+                }
+            });
+
+            // Populate Banner
+            document.getElementById('lessonWeekBadge').innerText = `Week ${data.week}`;
+            document.getElementById('lessonDate').innerText = data.date;
+            document.getElementById('lessonBookRef').innerText = data.bookRef;
+            document.getElementById('lessonTitle').innerText = data.title;
+            document.getElementById('montanoHabit').innerText = data.habit;
+
+            // Populate Tab 1
+            document.getElementById('warmupActivity').innerHTML = data.warmup;
+            document.getElementById('guidingQuestion').innerHTML = data.guidingQ;
+            document.getElementById('habitInstruction').innerHTML = data.habitInst;
+
+            // Populate Tab 2
+            document.getElementById('indivInstructions').innerHTML = data.indivTask;
+            document.getElementById('bookReferenceBox').innerText = `Book Reference: ${data.bookRef}`;
+            document.getElementById('answerKeyContent').innerHTML = data.answerKey;
+
+            // Populate Tab 3
+            document.getElementById('coopTask').innerHTML = data.coopTask;
+
+            // Populate Tab 4 Game
+            loadGameQuestion(data);
+
+            // Reset Tab to 1 upon lesson change
+            switchTab(1);
+        }
+
+        // TAB SWITCHING LOGIC
+        function switchTab(tabNum) {
+            activeTab = tabNum;
+            for (let i = 1; i <= 4; i++) {
+                const content = document.getElementById(`tabContent${i}`);
+                const btn = document.getElementById(`tabBtn${i}`);
+                if (i === tabNum) {
+                    content.classList.remove('hidden');
+                    btn.classList.add('tab-active');
+                } else {
+                    content.classList.add('hidden');
+                    btn.classList.remove('tab-active');
+                }
+            }
+        }
+
+        // TOGGLE ANSWER KEY ACCORDION
+        function toggleAnswerKey() {
+            const content = document.getElementById('answerKeyContent');
+            const chevron = document.getElementById('answerChevron');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.className = "fa-solid fa-chevron-up text-montano-blue text-xs";
+            } else {
+                content.classList.add('hidden');
+                chevron.className = "fa-solid fa-chevron-down text-montano-blue text-xs";
+            }
+        }
+
+        // TOGGLE PEDAGOGICAL DETAILS
+        function togglePedagogicalDetails() {
+            const details = document.getElementById('pedagogicalDetails');
+            const chevron = document.getElementById('pedagogyChevron');
+            if (details.classList.contains('hidden')) {
+                details.classList.remove('hidden');
+                chevron.className = "fa-solid fa-chevron-down text-xs transition-transform duration-200";
+            } else {
+                details.classList.add('hidden');
+                chevron.className = "fa-solid fa-chevron-right text-xs transition-transform duration-200";
+            }
+        }
+
+        // LOAD GAME QUESTION
+        function loadGameQuestion(data) {
+            const qText = document.getElementById('gameQuestion');
+            const optionsContainer = document.getElementById('gameOptions');
+            const feedback = document.getElementById('gameFeedback');
+
+            qText.innerText = `Q: ${data.gameQ}`;
+            optionsContainer.innerHTML = '';
+            feedback.innerText = '';
+
+            data.gameOptions.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "p-2.5 rounded border border-gray-200 bg-gray-50 hover:bg-montano-yellow/20 hover:border-montano-yellow text-left text-xs font-semibold transition flex items-center justify-between";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-gray-400"></i>`;
+                btn.onclick = () => checkAnswer(idx, data.gameCorrect, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // CHECK GAME ANSWER
+        function checkAnswer(selectedIndex, correctIndex, buttonElem) {
+            const feedback = document.getElementById('gameFeedback');
+            const allBtns = document.getElementById('gameOptions').children;
+
+            // Reset all buttons
+            for (let btn of allBtns) {
+                btn.className = "p-2.5 rounded border border-gray-200 bg-gray-50 text-left text-xs font-semibold opacity-60";
+            }
+
+            if (selectedIndex === correctIndex) {
+                buttonElem.className = "p-2.5 rounded border-2 border-green-500 bg-green-100 text-green-800 text-left text-xs font-bold";
+                feedback.className = "mt-3 text-xs font-bold text-green-600 flex items-center";
+                feedback.innerHTML = '<i class="fa-solid fa-circle-check mr-1.5 text-base"></i> Correct! Excellent reading comprehension!';
+            } else {
+                buttonElem.className = "p-2.5 rounded border-2 border-red-400 bg-red-100 text-red-800 text-left text-xs font-bold";
+                feedback.className = "mt-3 text-xs font-bold text-red-500 flex items-center";
+                feedback.innerHTML = '<i class="fa-solid fa-circle-xmark mr-1.5 text-base"></i> Not quite! Try reviewing the book text again.';
+            }
+        }
+
+        // TOGGLE INFO MODAL
+        function toggleInfoModal() {
+            const modal = document.getElementById('infoModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // FULLSCREEN TOGGLE FUNCTION
+        function toggleFullscreen() {
+            const icon = document.getElementById('fullscreenIcon');
+            const text = document.getElementById('fullscreenText');
+
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    icon.className = "fa-solid fa-compress mr-2";
+                    text.innerText = "Exit Fullscreen";
+                }).catch(err => {
+                    alert(`Error attempting to enable fullscreen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        icon.className = "fa-solid fa-expand mr-2";
+                        text.innerText = "Full Screen";
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
